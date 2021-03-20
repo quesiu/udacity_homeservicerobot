@@ -1,5 +1,50 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <nav_msgs/Odometry.h>
+#include <math.h>
+
+float posX = 0;
+float posY = 0;
+bool pickupZone = false;
+bool dropOffZone = false;
+// Different coordinate system for both AMCL = Rviz and Odometry = 
+// A better solution would be to use the same for all
+float pickUpX = 6.878;
+float pickUpY = 2.06;
+float dropOffX = -0.884;
+float dropOffY = 1.628;
+float pickUpXAMCL = 2.11;
+float pickUpYAMCL = -6.96;
+float dropOffXAMCL = 1.81;
+float dropOffYAMCL = 1.0;
+
+// Get odometry information and calculate where robot is
+void odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
+  // ROS_INFO("%s", msg->header.frame_id.c_str());
+  // ROS_INFO("%f", msg->twist.twist.linear.x);
+  ROS_INFO("Robot X pose: %f", msg->pose.pose.position.x);
+  ROS_INFO("Robot Y pose: %f", msg->pose.pose.position.y);
+  posX = msg->pose.pose.position.x;
+  posY = msg->pose.pose.position.y;
+  // Calculate if close to pick up and drop off
+  float pickUpDistance = sqrt(pow(posX-pickUpX,2)+pow(posY-pickUpY,2));
+  float dropOffDistance = sqrt(pow(posX-dropOffX,2)+pow(posY-dropOffY,2));
+  ROS_INFO("pickUp distance: %f", pickUpDistance);
+  ROS_INFO("dropOff distance: %f", dropOffDistance);
+	
+  // Close to pick up (arbitrary distance)
+  if(pickUpDistance < 0.5)
+  {
+    ROS_INFO("In pick up zone");
+    pickupZone = true;
+  }
+  // Close to drop off (arbitrary distance)
+  if(dropOffDistance < 0.5)
+  {
+    ROS_INFO("In drop off zone");
+    dropOffZone = true;
+  }
+}
 
 int main( int argc, char** argv )
 {
@@ -7,6 +52,9 @@ int main( int argc, char** argv )
   ros::NodeHandle n;
   ros::Rate r(1);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
+  
+  //Subscribe to odometry
+  ros::Subscriber odom_sub = n.subscribe("/odom", 1, &odomCallback);
 
   // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
@@ -31,8 +79,8 @@ int main( int argc, char** argv )
     marker.action = visualization_msgs::Marker::ADD;
 
     // Set the pose of the marker for pick-up zone.  This is a full 6DOF pose relative to the frame/time specified in the header
-    marker.pose.position.x = 2.11;
-    marker.pose.position.y = -6.96;
+    marker.pose.position.x = pickUpXAMCL;
+    marker.pose.position.y = pickUpYAMCL;
     marker.pose.position.z = 0;
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
@@ -56,8 +104,8 @@ int main( int argc, char** argv )
     {
       // Change to drop off zone
       // Set the pose of the marker for pick-up zone.  This is a full 6DOF pose relative to the frame/time specified in the header
-      marker.pose.position.x = 1.81;
-      marker.pose.position.y = 1.0;
+      marker.pose.position.x = dropOffXAMCL;
+      marker.pose.position.y = dropOffYAMCL;
       // ADD new marker at drop off
       marker.action = visualization_msgs::Marker::ADD;
     }
@@ -65,13 +113,19 @@ int main( int argc, char** argv )
     {
       // DELETE/hide pick-up marker
       marker.action = visualization_msgs::Marker::DELETE;
-      phase = 2; // Switch to drop-off
+      if(dropOffZone)
+      {
+        phase = 2; // Switch to drop-off
+      }
     }
     if(phase == 0)
     {
       // ADD new marker at drop off
       marker.action = visualization_msgs::Marker::ADD;
-      phase = 1; // Switch to disappear
+      if(pickupZone)
+      {
+        phase = 1; // Switch to disappear = picked-up
+      }
     }
 
     // Publish the marker
@@ -106,6 +160,6 @@ int main( int argc, char** argv )
       break;
     }*/
 
-    r.sleep();
+    ros::spinOnce();
   }
 }
