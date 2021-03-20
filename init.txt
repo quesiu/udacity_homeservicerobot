@@ -1,0 +1,5 @@
+
+rosdep -i install gmapping
+rosdep -i install turtlebot_teleop
+rosdep -i install turtlebot_rviz_launchers
+rosdep -i install turtlebot_gazebo
