@@ -34,7 +34,7 @@ catkin_make
 
 ## Usage
 
-###launch.sh
+### launch.sh
 This script is a just a first trial to shell scripting.
 ```
 cd /<YOUR_LOCAL_PATH>/udacity_homeservicerobot/catkin_ws
@@ -42,7 +42,7 @@ source devel/setup.bash
 ./src/scripts/launch.sh
 ```
 
-###test_slam.sh
+### test_slam.sh
 This script launches all necessary nodes to allow slam via gmapping.
 It is very difficult to get good results with this script due to:
 - poor sensor detection from turtlebot default robot
@@ -55,7 +55,7 @@ source devel/setup.bash
 ```
 Alternatively test_slam_turtlebot_world.sh can be used with default world files from turtlebot gazebo.
 
-###test_slam.sh
+### test_navigation.sh
 This script launches all necessary nodes to allow slam via gmapping.
 With this algorithm and a map generating via SLAM, this allows to give a 2D goal to the robot in the map (via RViz vizualisation).
 Robot will use a path planning algorithm to reach its destination.
@@ -66,7 +66,7 @@ source devel/setup.bash
 ```
 Alternatively test_navigation_turtlebot_world.sh can be used with default world files from turtlebot gazebo.
 
-###pick_objects.sh
+### pick_objects.sh
 This script launches all necessary nodes to allow the robot to pick items at two given positions.
 ```
 cd /<YOUR_LOCAL_PATH>/udacity_homeservicerobot/catkin_ws
@@ -75,7 +75,7 @@ source devel/setup.bash
 ```
 Alternatively pick_objects_turtlebot_world.sh can be used with default world files from turtlebot gazebo.
 
-###add_markers.sh
+### add_markers.sh
 This script launches all necessary nodes to allow the addition of virtual packages on the RViz vizualisation, simulating objects the robot could take.
 ```
 cd /<YOUR_LOCAL_PATH>/udacity_homeservicerobot/catkin_ws
@@ -83,7 +83,7 @@ source devel/setup.bash
 ./src/scripts/add_markers.sh
 ```
 
-###add_markers.sh
+### home_service.sh
 This script launches all necessary nodes to allow full home service experience:
 - the robot moves towards a defined pick-up point first, grabs an item and delivers it to a defined drop-off point
 - previously coded pick_objects node is used to lead the robot to its goals using path planning and the map generating before
